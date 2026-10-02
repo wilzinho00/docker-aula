@@ -1,0 +1,44 @@
+name: Pipeline Docker - Entrega Contínua
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build da Imagem Docker
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Baixar código do GitHub
+        uses: actions/checkout@v4
+
+      - name: Construir imagem Docker
+        run: docker build -t minha-imagem .
+
+  test:
+    name: Teste do Container
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Baixar código do GitHub
+        uses: actions/checkout@v4
+
+      - name: Construir imagem para teste
+        run: docker build -t minha-imagem .
+
+      - name: Executar container
+        run: docker run -d --name meu-container -p 8080:80 minha-imagem
+
+      - name: Verificar container
+        run: docker ps
+
+      - name: Testar NGINX
+        run: |
+          sleep 5
+          curl --fail http://localhost:8080
